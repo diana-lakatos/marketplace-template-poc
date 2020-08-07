@@ -1,0 +1,7 @@
+query token($email: String!, $valid_for: Int = 1) {
+  user(email: $email){
+    id
+    email
+    temporary_token(valid_for: $valid_for)
+  }
+}

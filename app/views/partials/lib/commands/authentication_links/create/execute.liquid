@@ -1,0 +1,23 @@
+{% liquid
+  graphql result = 'users/token', args: object
+
+  assign temporary_token = result | dig: 'user', 'temporary_token'
+  assign id = result | dig: 'user', 'id'
+  export temporary_token, namespace: 'object'
+  export id, namespace: 'object'
+
+%}
+
+{% parse_json data %}
+  {
+    "to": "{{ result | dig: 'user', 'email' }}",
+    "from": "support@example.com",
+    "subject": "{{ 'app.emails.authentication_links.created.subject' | t }}",
+    "link": "https://{{ context.location.host }}/passwords/edit?token={{ result | dig: 'user', 'temporary_token' }}&email={{ object.email | url_encode }}",
+    "user": {
+      "id": "{{ id }}"
+    }
+  }
+{% endparse_json %}
+
+{% graphql email_send = "email_send", template: "authentication_links/created", data: data %}

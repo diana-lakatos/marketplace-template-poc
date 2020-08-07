@@ -1,0 +1,24 @@
+---
+method: post
+---
+{% liquid
+  include 'lib/commands/authentication_links/create/build', object: context.params.authentication_link
+  include 'lib/commands/authentication_links/create/check', object: context.exports.object
+
+  if context.exports.object.valid
+    include 'lib/commands/authentication_links/create/execute', object: context.exports.object
+
+    if context.exports.object.valid
+
+      echo context.exports.object
+
+      include 'lib/events/create-event', type: 'authentication_link_created', actor_id: context.exports.object.id
+
+      include 'redirect_to', url: '/', notice: 'app.authentication_links.created'
+    else
+    endif
+
+  else
+    include 'theme/simple/authentication_links/new', object: context.exports.object
+  endif
+%}
